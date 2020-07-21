@@ -7,6 +7,8 @@ import { makeStyles } from '@material-ui/core/styles';
 import Modal from '@material-ui/core/Modal';
 import { Button } from '@material-ui/core';
 import Input from '@material-ui/core/Input';
+import ImageUpload from './ImageUpload';
+import InstagramEmbed from 'react-instagram-embed';
 
 
 function getModalStyle() {
@@ -64,7 +66,7 @@ function App() {
   // db useEffect : front end listener : Runs a piece of code based on a specific condition or when the data in page changes every time
   useEffect(() => {
     // backend listener: this is run whenever there is a change in the firebase collection/documents
-    db.db.collection('posts').onSnapshot(snapshot => {
+    db.db.collection('posts').orderBy('timestamp','desc').onSnapshot(snapshot => {
       setPosts(snapshot.docs.map(doc => (
         {
           id: doc.id,
@@ -105,12 +107,7 @@ function App() {
     setEmail('')
   }
   return (<div className="App" >
-    {/* 
-     caption input
-     file picker
-     post button
-     */}
-     
+   
     {/* REGISTER/SIGN UP MODAL */}
     <Modal
       open={open}
@@ -149,10 +146,10 @@ function App() {
     {/* Header*/}
     <div className="app__header">
       <img src="https://www.instagram.com/static/images/web/mobile_nav_type_logo.png/735145cfe0a4.png" alt="" className="app__headerImage" />
-    </div>
-
-    {/* LOGIN/REGISTER/SIGNOUT BUTTON */}
-    {
+    
+    
+     {/* LOGIN/REGISTER/SIGNOUT BUTTON */}
+     {
       user ? (
         <Button onClick={() => { auth.auth.signOut() }}>Logout</Button>
       ) : (
@@ -165,13 +162,40 @@ function App() {
 
         )
     }
-
-    {/* POSTS*/}
-    {
+    </div>
+  
+<div className="app__posts">
+<div className="app__postsLeft">
+  {/* POSTS*/}
+  {
       posts.map(({ id, post }) => (
-        <Post key={id} username={post.username} caption={post.caption} imageURL={post.imageURL} />
+        <Post key={id} postId={id} user={user} username={post.username} caption={post.caption} imageURL={post.imageURL} />
       ))
     }
+      {
+      user?.displayName ? (
+        <ImageUpload username={user.displayName}/>
+      ) : (
+          '' 
+        )
+    }
+</div>
+<div className="app__postsRight">
+
+<InstagramEmbed
+  url='https://www.instagram.com/p/B7Jl9WKAaNF/'
+  maxWidth={320}
+  hideCaption={false}
+  containerTagName='div'
+  protocol=''
+  injectScript
+  onLoading={() => {}}
+  onSuccess={() => {}}
+  onAfterRender={() => {}}
+  onFailure={() => {}}
+/>
+</div>     
+</div>
   </div>
   );
 }
